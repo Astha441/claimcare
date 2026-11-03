@@ -22,10 +22,10 @@ The server binds to localhost only. Case records and uploads are encrypted at re
 
 ## WhatsApp + email
 
-Query upload automatically attempts both channels and records each provider response; no send button is required. Provider secrets stay in the server `.env`:
+Query upload automatically attempts both channels and records each provider response; no send button is required. Use `.env` locally or Render's Environment page when hosted:
 
 - WhatsApp Cloud API: `WA_PHONE_ID`, `WA_ACCESS_TOKEN`, `WA_API_VERSION` (the current version enabled for your Meta app), `WA_TEMPLATE_NAME`, `WA_TEMPLATE_LANGUAGE`. Business-initiated messages require a Meta-approved template. Configure the template body with four text parameters in this order: patient name, insurer, patient ID, requested items. The test number must be allowed by the configured WhatsApp test sender.
-- Email: `RESEND_API_KEY` and `EMAIL_FROM`. The sender domain/address must be verified with Resend.
+- Email without a custom domain: `BREVO_API_KEY` and `BREVO_SENDER_EMAIL`. Verify the sender email address in Brevo before sending. Brevo's free plan includes transactional email; it may replace a free mailbox sender address with a compliant Brevo sender. Alternatively, use Resend with `RESEND_API_KEY` and `EMAIL_FROM` after verifying a sender domain. Render Free blocks SMTP ports, so configure an HTTPS email API rather than Gmail SMTP.
 
 When credentials are absent, the system records `not_configured` for that channel and still records its message. Network/provider failures are captured per channel; one failing provider does not prevent the other send attempt. The retry endpoint only retries channels that have not already succeeded, avoiding duplicate patient messages. The included seed phone numbers and `example.com` email addresses are synthetic and cannot receive messages; replace them with your evaluation contacts before sending.
 
@@ -42,4 +42,4 @@ When credentials are absent, the system records `not_configured` for that channe
 - `.env.example` — provider setup reference
 - `index.html` — setup landing page; the server hosts the portal at the localhost URL above
 
-The rules-based query/document matcher is intentionally explainable and shows confidence/status for every point. It is a workflow automation aid; ambiguous requests should be reviewed by claims staff. The demo is not yet ready for a live external evaluation until you configure a real WhatsApp sender, approved template, verified email sender, and the evaluator's valid patient phone numbers and email addresses. The current `trycloudflare.com` URL is temporary and only works while the host computer and tunnel are running. A permanent evaluation URL needs a hosted deployment with persistent storage and protected secrets; do not deploy this JSON/file store on an ephemeral filesystem.
+The rules-based query/document matcher is intentionally explainable and shows confidence/status for every point. It is a workflow automation aid; ambiguous requests should be reviewed by claims staff. The demo is not yet ready for a live external evaluation until you configure a real WhatsApp sender, approved template, Brevo transactional email or a verified Resend sender, and the evaluator's valid patient phone numbers and email addresses. The current `trycloudflare.com` URL is temporary and only works while the host computer and tunnel are running. A permanent evaluation URL needs a hosted deployment with persistent storage and protected secrets; do not deploy this JSON/file store on an ephemeral filesystem.
