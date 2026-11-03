@@ -14,7 +14,7 @@ Requirements: Node.js 20.16 or newer and npm.
 
 `render.yaml` configures a Free Node web service and health check. This avoids a paid service, but Render Free services sleep after 15 minutes without traffic and their filesystem is temporary: uploaded documents, query history, and the local JSON store can be lost when the service sleeps, restarts, or redeploys. The app reseeds its synthetic sample patients at startup. Uploaded queries can still be processed while an instance is awake, but this configuration is for a time-limited evaluation demo, not durable patient records. Render documents these free-tier limits at https://render.com/docs/free.
 
-The deployment requires these secrets in Render's Environment page: `ADMIN_PASSWORD`, `SESSION_SECRET`, and `DATA_ENCRYPTION_KEY` (exactly 64 hex characters). Set a strong, unique password and retain the encryption key securely; losing that key makes stored records and files unreadable. Provider variables can be added there as well. Never commit `.env`, patient data, or API tokens.
+During Blueprint setup, Render generates `SESSION_SECRET` and `DATA_ENCRYPTION_KEY`. Set a unique `ADMIN_PASSWORD` of at least 16 characters when prompted. Retain the encryption key securely; losing it makes stored records and files unreadable. Provider variables can be added later in Render's Environment page. Never commit `.env`, patient data, or API tokens.
 
 To deploy, connect the GitHub repository to Render and create a Blueprint from `render.yaml`. Render will supply the public `onrender.com` URL. Use the deployment dashboard to enter secrets; do not put secret values in `render.yaml`.
 

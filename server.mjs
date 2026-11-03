@@ -13,10 +13,12 @@ const DATA = path.resolve(process.env.DATA_DIR || path.join(ROOT, 'data'));
 const UPLOADS = path.join(DATA, 'uploads');
 await fs.mkdir(UPLOADS, { recursive: true });
 const PORT = Number(process.env.PORT || 4173);
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'claimcare-demo-2026';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (process.env.NODE_ENV === 'production' ? '' : 'claimcare-demo-2026');
+if (process.env.NODE_ENV === 'production' && ADMIN_PASSWORD.length < 16) throw new Error('Set a unique ADMIN_PASSWORD with at least 16 characters for production.');
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
-const DATA_KEY = Buffer.from(process.env.DATA_ENCRYPTION_KEY || '', 'hex');
-if (DATA_KEY.length !== 32) throw new Error('DATA_ENCRYPTION_KEY must be 64 hex characters (32 random bytes).');
+const encryptionKeyValue = process.env.DATA_ENCRYPTION_KEY || '';
+const DATA_KEY = /^[a-f0-9]{64}$/i.test(encryptionKeyValue) ? Buffer.from(encryptionKeyValue, 'hex') : Buffer.from(encryptionKeyValue, 'base64');
+if (DATA_KEY.length !== 32) throw new Error('DATA_ENCRYPTION_KEY must encode exactly 32 random bytes as 64 hex characters or base64.');
 function seal(value){const iv=crypto.randomBytes(12),cipher=crypto.createCipheriv('aes-256-gcm',DATA_KEY,iv),body=Buffer.concat([cipher.update(value),cipher.final()]);return Buffer.concat([Buffer.from('CC1'),iv,cipher.getAuthTag(),body])}
 function unseal(value){if(value.subarray(0,3).toString()!=='CC1')throw new Error('Encrypted workspace file is invalid.');const iv=value.subarray(3,15),tag=value.subarray(15,31),body=value.subarray(31),decipher=crypto.createDecipheriv('aes-256-gcm',DATA_KEY,iv);decipher.setAuthTag(tag);return Buffer.concat([decipher.update(body),decipher.final()])}
 const DB_FILE = path.join(DATA, 'claimcare.json');

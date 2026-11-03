@@ -12,9 +12,9 @@ services:
       - key: ADMIN_PASSWORD
         sync: false
       - key: SESSION_SECRET
-        sync: false
+        generateValue: true
       - key: DATA_ENCRYPTION_KEY
-        sync: false
+        generateValue: true
       - key: WA_PHONE_ID
         sync: false
       - key: WA_ACCESS_TOKEN
