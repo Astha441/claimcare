@@ -9,6 +9,17 @@ import { DOMMatrix, ImageData, Path2D } from '@napi-rs/canvas';
 globalThis.DOMMatrix=DOMMatrix;globalThis.ImageData=ImageData;globalThis.Path2D=Path2D;
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
+// Local development can use .env; hosted services inject environment variables directly.
+try {
+  const envText = await fs.readFile(path.join(ROOT, '.env'), 'utf8');
+  for (const line of envText.split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (!match || process.env[match[1]] !== undefined) continue;
+    let value = match[2];
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1, -1);
+    process.env[match[1]] = value;
+  }
+} catch (error) { if (error.code !== 'ENOENT') throw error; }
 const DATA = path.resolve(process.env.DATA_DIR || path.join(ROOT, 'data'));
 const UPLOADS = path.join(DATA, 'uploads');
 await fs.mkdir(UPLOADS, { recursive: true });
