@@ -10,11 +10,13 @@ Requirements: Node.js 20.16 or newer and npm.
 2. Run `npm install`, then `npm start`.
 4. Open `http://127.0.0.1:4173` and sign in with the password in `.env`.
 
-## Deploy from GitHub to Render
+## Free demo deployment from GitHub to Render
 
-`render.yaml` configures a Node web service, health check, and a persistent data disk mounted at `/var/data`. The app reads `DATA_DIR`, so patient records and encrypted uploads survive deploys. Render's filesystem is otherwise ephemeral, and its persistent disks are available on paid services; confirm the service and disk cost in Render before creating it. The deployment requires these secrets in Render's Environment page: `ADMIN_PASSWORD`, `SESSION_SECRET`, and `DATA_ENCRYPTION_KEY` (exactly 64 hex characters). Set a strong, unique password and retain the encryption key securely; losing that key makes stored records and files unreadable. Provider variables can be added there as well. Never commit `.env`, patient data, or API tokens.
+`render.yaml` configures a Free Node web service and health check. This avoids a paid service, but Render Free services sleep after 15 minutes without traffic and their filesystem is temporary: uploaded documents, query history, and the local JSON store can be lost when the service sleeps, restarts, or redeploys. The app reseeds its synthetic sample patients at startup. Uploaded queries can still be processed while an instance is awake, but this configuration is for a time-limited evaluation demo, not durable patient records. Render documents these free-tier limits at https://render.com/docs/free.
 
-To deploy, create a GitHub repository containing this product folder, push the code, then create a Render Blueprint from that repository and review the service plan before deploying. Render will supply the public `onrender.com` URL. Use the deployment dashboard to enter secrets; do not put secret values in `render.yaml`.
+The deployment requires these secrets in Render's Environment page: `ADMIN_PASSWORD`, `SESSION_SECRET`, and `DATA_ENCRYPTION_KEY` (exactly 64 hex characters). Set a strong, unique password and retain the encryption key securely; losing that key makes stored records and files unreadable. Provider variables can be added there as well. Never commit `.env`, patient data, or API tokens.
+
+To deploy, connect the GitHub repository to Render and create a Blueprint from `render.yaml`. Render will supply the public `onrender.com` URL. Use the deployment dashboard to enter secrets; do not put secret values in `render.yaml`.
 
 The server binds to localhost only. Case records and uploads are encrypted at rest with AES-256-GCM using `DATA_ENCRYPTION_KEY`; records are stored under `data/`. File downloads and patient routes require workspace authentication. Use synthetic data for evaluation on this local demo; a real deployment still needs managed identity, audit/retention policy, backups and production access controls.
 
